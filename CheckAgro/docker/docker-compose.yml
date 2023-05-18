@@ -7,7 +7,7 @@ services:
       MYSQL_DATABASE: 'checkAgro-dev'
       MYSQL_USER: 'usr-checkAgro'
       MYSQL_PASSWORD: 'pwd-checkAgro'
-      MYSQL_ROOT_PASSWORD: 'toor'
+      MYSQL_ROOT_PASSWORD: 'password'
     ports:
       # <Port exposed> : < MySQL Port running inside container>
       - '3306:3306'
