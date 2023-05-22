@@ -4,15 +4,16 @@ import feign.RequestLine;
 import lombok.*;
 
 import javax.validation.constraints.Size;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
 
+@FeignClient(name = "api-check")
 public interface CheckMSClient {
 
-    @Headers("Content-Type: application/json")
-    @RequestLine("POST /api/v1/check/provider/register")
+    @PostMapping("/api/v1/check/provider/register")
     void registerProvider(DocumentRequest request);
 
-    @Headers("Content-Type: application/json")
-    @RequestLine("POST /api/v1/check/provider/delete")
+    @PostMapping("/api/v1/check/provider/delete")
     void deleteProvider(DocumentRequest request);
 
     @AllArgsConstructor
