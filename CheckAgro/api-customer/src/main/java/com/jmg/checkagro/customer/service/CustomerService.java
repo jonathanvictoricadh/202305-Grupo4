@@ -6,18 +6,22 @@ import com.jmg.checkagro.customer.exception.MessageCode;
 import com.jmg.checkagro.customer.model.Customer;
 import com.jmg.checkagro.customer.repository.CustomerRepository;
 import com.jmg.checkagro.customer.utils.DateTimeUtils;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.stereotype.Service;
-
 import javax.transaction.Transactional;
 
 @Service
+
 public class CustomerService {
 
+    private final CheckMSClient customerFeing;
     private final CustomerRepository customerRepository;
 
     private final CheckMSClient client;
 
-    public CustomerService(CustomerRepository customerRepository, CheckMSClient client) {
+    public CustomerService(CheckMSClient customerFeing, CustomerRepository customerRepository, CheckMSClient client) {
+        this.customerFeing = customerFeing;
         this.customerRepository = customerRepository;
         this.client = client;
     }
@@ -35,8 +39,18 @@ public class CustomerService {
 
         return entity.getId();
     }
+    @Retry(name = "retryCustomer")
+    @CircuitBreaker(name = "clientCustomer", fallbackMethod = "findCustomerFallBack")
+    private CheckMSClient.Customer findCustomer(Long courseId) {
+        var course = courseFeign.getById(courseId);
+        return course;
+    }
 
-    private void registerCustomerInMSCheck(Customer entity) {
+    public CourseFeign.Course findCourseFallBack(Long courseId, Throwable t) throws Exception {
+        throw new Exception("Not found Course");
+
+
+        private void registerCustomerInMSCheck(Customer entity) {
         client.registerCustomer(CheckMSClient.DocumentRequest.builder()
             .documentType(entity.getDocumentType())
             .documentValue(entity.getDocumentNumber())
